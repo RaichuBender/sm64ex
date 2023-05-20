@@ -229,10 +229,10 @@ static void stationary_slow_down(struct MarioState *m) {
 
 static void update_swimming_speed(struct MarioState *m, f32 decelThreshold) {
     f32 buoyancy = get_buoyancy(m);
-    f32 maxSpeed = 28.0f;
+    f32 maxSpeed = 280.0f;
 
     if (m->action & ACT_FLAG_STATIONARY) {
-        m->forwardVel -= 2.0f;
+        m->forwardVel -= 20.0f;
     }
 
     if (m->forwardVel < 0.0f) {
@@ -244,7 +244,7 @@ static void update_swimming_speed(struct MarioState *m, f32 decelThreshold) {
     }
 
     if (m->forwardVel > decelThreshold) {
-        m->forwardVel -= 0.5f;
+        m->forwardVel -= 5.0f;
     }
 
     m->vel[0] = m->forwardVel * coss(m->faceAngle[0]) * sins(m->faceAngle[1]);
@@ -439,7 +439,7 @@ static void common_swimming_step(struct MarioState *m, s16 swimStrength) {
 
     update_swimming_yaw(m);
     update_swimming_pitch(m);
-    update_swimming_speed(m, swimStrength / 10.0f);
+    update_swimming_speed(m, swimStrength);
 
     switch (perform_water_step(m)) {
         case WATER_STEP_HIT_FLOOR:
@@ -493,7 +493,7 @@ static s32 check_water_jump(struct MarioState *m) {
         if (probe >= m->waterLevel - 80 && m->faceAngle[0] >= 0 && m->controller->stickY < -60.0f) {
             vec3s_set(m->angleVel, 0, 0, 0);
 
-            m->vel[1] = 62.0f;
+            m->vel[1] = 620.0f;
 
             if (m->heldObj == NULL) {
                 return set_mario_action(m, ACT_WATER_JUMP, 0);
@@ -612,12 +612,12 @@ static s32 act_flutter_kick(struct MarioState *m) {
 
     if (!(m->input & INPUT_A_DOWN)) {
         if (m->actionTimer == 0 && sSwimStrength < 280) {
-            sSwimStrength += 10;
+            sSwimStrength += 100;
         }
         return set_mario_action(m, ACT_SWIMMING_END, 0);
     }
 
-    m->forwardVel = approach_f32(m->forwardVel, 12.0f, 0.1f, 0.15f);
+    m->forwardVel = approach_f32(m->forwardVel, 120.0f, 1.0f, 1.5f);
     m->actionTimer = 1;
     sSwimStrength = MIN_SWIM_STRENGTH;
 
@@ -652,11 +652,11 @@ static s32 act_hold_breaststroke(struct MarioState *m) {
     }
 
     if (m->actionTimer < 6) {
-        m->forwardVel += 0.5f;
+        m->forwardVel += 5.0f;
     }
 
     if (m->actionTimer >= 9) {
-        m->forwardVel += 1.5f;
+        m->forwardVel += 15.0f;
     }
 
     if (m->actionTimer >= 2) {
@@ -731,7 +731,7 @@ static s32 act_hold_flutter_kick(struct MarioState *m) {
         return set_mario_action(m, ACT_HOLD_SWIMMING_END, 0);
     }
 
-    m->forwardVel = approach_f32(m->forwardVel, 12.0f, 0.1f, 0.15f);
+    m->forwardVel = approach_f32(m->forwardVel, 120.0f, 1.0f, 1.5f);
     if (m->forwardVel < 14.0f) {
         play_swimming_noise(m);
         set_mario_animation(m, MARIO_ANIM_FLUTTERKICK_WITH_OBJ);
